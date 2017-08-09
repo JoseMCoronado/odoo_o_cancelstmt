@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!--Server action that first unreconciles all bank statement lines and then deletes the bank statement-->
+  <record model="ir.actions.server" id="jos_force_delete_stmt">
+    <field name="model_id" ref="account_cancel.model_account_bank_statement"/>
+    <field name="name">Force Delete Bank Statement (WARNING)</field>
+    <field name="sequence">5</field>
+    <field name="state">code</field>
+    <field name="condition" eval="True"/>
+    <field name="code"><![CDATA[records = env['account.bank.statement'].browse(context['active_ids'])
+for statement in records:
+    if statement.state == 'confirm':
+        statement.button_draft()
+    for line in statement.line_ids:
+        if line.journal_entry_ids:
+            line.button_cancel_reconciliation()
+    statement.unlink()
+      ]]>
+    </field>
+  </record>
+  <!--Button to Run the Action-->
+  <record model="ir.ui.view" id="jos_force_delete_stmt_button">
+      <field name="name">x_jos.account.bank.statement.form.mod</field>
+      <field name="model">account.bank.statement</field>
+      <field name="inherit_id" ref="account.view_bank_statement_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//header" position="inside">
+            <Button name="%(jos_force_delete_stmt)d" type="action" groups="account.group_account_manager" string="Force Delete"/>
+        </xpath>
+      </field>
+      <field name="priority">99</field>
+    </record>
+</odoo>
