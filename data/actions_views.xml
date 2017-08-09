@@ -14,6 +14,7 @@ for statement in records:
     for line in statement.line_ids:
         if line.journal_entry_ids:
             line.button_cancel_reconciliation()
+            line['move_name'] = False
     statement.unlink()
       ]]>
     </field>
