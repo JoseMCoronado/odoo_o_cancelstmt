@@ -11,10 +11,11 @@
 for statement in records:
     if statement.state == 'confirm':
         statement.button_draft()
+    statement.line_ids.write({'move_name': False})
     for line in statement.line_ids:
         if line.journal_entry_ids:
             line.button_cancel_reconciliation()
-            line['move_name'] = False
+            line.unlink()
     statement.unlink()
       ]]>
     </field>
